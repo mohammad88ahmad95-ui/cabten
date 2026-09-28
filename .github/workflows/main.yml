@@ -1,0 +1,62 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run logic tests (money, deposit, booking states)
+        run: npm test
+
+      - name: Create database tables
+        run: |
+          psql -v ON_ERROR_STOP=1 -c "CREATE DATABASE captain;"
+          psql -v ON_ERROR_STOP=1 -d captain -f db/migrations/001_core.sql
+
+      - name: Double-booking protection test
+        run: |
+          psql -v ON_ERROR_STOP=1 -d captain <<'SQL'
+          DO $$
+          DECLARE pid uuid; uid uuid; cat int; city int;
+          BEGIN
+            INSERT INTO users(password_hash, full_name, email) VALUES ('x','t','t@t.t') RETURNING id INTO uid;
+            INSERT INTO categories(slug, name_ar) VALUES ('halls','halls') RETURNING id INTO cat;
+            INSERT INTO cities(name_ar) VALUES ('city') RETURNING id INTO city;
+            INSERT INTO providers(owner_user_id, category_id, city_id, business_name)
+              VALUES (uid, cat, city, 't') RETURNING id INTO pid;
+            INSERT INTO calendar_entries(provider_id, kind, during)
+              VALUES (pid, 'confirmed_booking', '[2026-12-01,2026-12-02)');
+            BEGIN
+              INSERT INTO calendar_entries(provider_id, kind, during)
+                VALUES (pid, 'manual_booking', '[2026-12-01 10:00+00,2026-12-01 14:00+00)');
+              RAISE EXCEPTION 'FAIL: overlapping booking was accepted';
+            EXCEPTION WHEN exclusion_violation THEN
+              RAISE NOTICE 'OK: overlapping booking was rejected';
+            END;
+          END $$;
+          SQL

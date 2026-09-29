@@ -1,0 +1,7 @@
+{
+  "name": "captain-party",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test packages/domain/test/domain.test.ts" },
+  "engines": { "node": ">=22.18" }
+}

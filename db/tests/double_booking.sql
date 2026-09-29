@@ -1,0 +1,6 @@
+-- Run with psql against a migrated DB. UNRUN in this session (no Postgres available).
+-- Two sessions confirm the same provider/date; the second MUST fail with exclusion_violation (23P01).
+-- Session A:  BEGIN; INSERT INTO calendar_entries (provider_id,kind,during) VALUES (:pid,'confirmed_booking','[2026-12-01,2026-12-02)');  -- (do not commit yet)
+-- Session B:  INSERT INTO calendar_entries (provider_id,kind,during) VALUES (:pid,'manual_booking','[2026-12-01 10:00,2026-12-01 14:00)');  -- blocks, then errors after A commits
+-- Session A:  COMMIT;
+-- Expected in B: ERROR 23P01 conflicting key value violates exclusion constraint "no_overlap_per_provider"

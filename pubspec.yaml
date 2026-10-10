@@ -1,0 +1,43 @@
+name: captain_party
+description: كابتن بارتي - تطبيق حجوزات الأفراح والمناسبات
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:       # CRITICAL: Required for every Flutter project - DO NOT REMOVE
+    sdk: flutter # CRITICAL: Required for every Flutter project - DO NOT REMOVE
+  flutter_localizations:
+    sdk: flutter # دعم اللغة العربية و RTL
+  intl: any
+
+  # CRITICAL: Core UI and responsive design - DO NOT REMOVE OR MODIFY
+  sizer: ^2.0.15
+  flutter_svg: ^2.0.10+1
+  google_fonts: ^6.1.0
+  shared_preferences: ^2.2.3
+  web: ^1.1.0
+
+  # Feature dependencies - نسخ محافِظة مُختبرة للتوافق مع Flutter 3.24.x
+  cached_network_image: ^3.3.1
+  connectivity_plus: ^6.0.5
+  dio: ^5.4.3+1
+  fluttertoast: ^8.2.4
+  fl_chart: ^0.68.0
+  flutter_slidable: ^3.1.1
+  table_calendar: '>=3.0.0 <3.2.0'
+  image_picker: ^1.0.7   # اختيار الصور من المعرض (لوحة مقدم الخدمة)
+  path_provider: ^2.1.2  # حفظ الصور المختارة داخل التطبيق
+
+dev_dependencies:
+  flutter_test:    # CRITICAL: Required for Flutter project testing - DO NOT REMOVE
+    sdk: flutter   # CRITICAL: Required for Flutter project testing - DO NOT REMOVE
+  flutter_lints: ^4.0.0 # CRITICAL: Required for code quality - DO NOT REMOVE
+
+flutter:
+  uses-material-design: true # CRITICAL: Required for Material icon font - DO NOT REMOVE
+  assets:
+    - assets/
+    - assets/images/
